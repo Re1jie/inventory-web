@@ -1,0 +1,9 @@
+RewriteEngine On
+RewriteBase /inventory-web/
+
+# Jika request BUKAN file yang ada
+RewriteCond %{REQUEST_FILENAME} !-f
+# Dan jika request BUKAN direktori yang ada
+RewriteCond %{REQUEST_FILENAME} !-d
+# Alihkan semua request ke index.php
+RewriteRule . index.php [L]
