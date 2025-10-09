@@ -9,15 +9,14 @@ if ($uri === '' || $uri === '/index.php') {
 
 switch ($uri) {
     case '/':
-        // PERBAIKAN: Tambahkan $basePath sebelum /login
         header('Location: ' . $basePath . '/login');
-        exit(); // Tambahkan exit() untuk menghentikan eksekusi script
+        exit();
         break;
     case '/login':
         require 'views/login/LoginPage.php';
         break;
     case '/login-post':
-        require 'controllers/auth/login.php';
+        require 'controllers/auth/LoginController.php';
         break;
     case '/logout':
         require 'controllers/auth/logout.php';
