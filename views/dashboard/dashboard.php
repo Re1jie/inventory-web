@@ -1,5 +1,7 @@
 <?php
-include __DIR__ . '/../layouts/header.php'; ?>
+include __DIR__ . '/../layouts/header.php';
+include __DIR__ . '/../layouts/sidebar.php';
+?>
 
 <main class="p-6 bg-gray-100 min-h-screen">
     <div class="max-w-4xl mx-auto">
