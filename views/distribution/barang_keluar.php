@@ -1,6 +1,7 @@
 <?php
 // Include header layout (pastikan path ini benar sesuai struktur folder kamu)
 include __DIR__ . '/../layouts/header.php';
+include __DIR__ . '/../layouts/sidebar.php';
 ?>
 
 <div class="container mx-auto mt-10">
