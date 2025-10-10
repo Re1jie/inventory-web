@@ -1,7 +1,7 @@
 <?php
-$basePath = '/inventory-web';
+define('BASE_PATH', '/inventory-web');
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-$uri = substr($uri, strlen($basePath));
+$uri = substr($uri, strlen(BASE_PATH));
 
 if ($uri === '' || $uri === '/index.php') {
     $uri = '/';
@@ -9,7 +9,7 @@ if ($uri === '' || $uri === '/index.php') {
 
 switch ($uri) {
     case '/':
-        header('Location: ' . $basePath . '/login');
+        header('Location: ' . BASE_PATH . '/login');
         exit();
         break;
     case '/login':
@@ -19,11 +19,11 @@ switch ($uri) {
         require 'controllers/auth/LoginController.php';
         break;
     case '/logout':
-        require 'controllers/auth/logout.php';
+        require 'controllers/auth/LogoutController.php';
         break;
     case '/dashboard':
         require 'middleware/auth.php';
-        require 'views/dashboard/index.php';
+        require 'views/dashboard/dashboard.php';
         break;
     default:
         http_response_code(404);
