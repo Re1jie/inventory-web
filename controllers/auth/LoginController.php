@@ -19,7 +19,7 @@ if ($user = $result->fetch_assoc()) {
             'username' => $user['username'],
             'role' => $user['role']
         ];
-        header("Location: /inventory-web/views/dashboard/dashboard.php");
+        header('Location: ' . BASE_PATH . '/dashboard');
         exit;
     }
 }
