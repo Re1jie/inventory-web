@@ -1,4 +1,5 @@
 <?php
+session_start();
 include __DIR__ . '/../layouts/header.php';
 //include __DIR__ . '/../../controllers/DistribusiController.php';
 include __DIR__ . '/../layouts/sidebar.php';
