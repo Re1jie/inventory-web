@@ -31,10 +31,28 @@ switch ($uri) {
         require 'middleware/auth.php';
         require 'views/dashboard/dashboard.php';
         break;
+
     case '/user-management':
         require 'middleware/auth.php'; // Pastikan login
         require 'middleware/superadmin.php'; // Pastikan superadmin
         require 'controllers/management/UserManagementController.php';
+
+    case '/barang':
+        require 'middleware/auth.php';
+        require 'controllers/ManajemenBarangController.php';
+        break;
+    case '/barang/tambah':
+        require 'middleware/auth.php';
+        require 'controllers/ManajemenBarangController.php';
+        break;
+    case '/barang/edit':
+        require 'middleware/auth.php';
+        require 'controllers/ManajemenBarangController.php';
+        break;
+    case '/barang/hapus':
+        require 'middleware/auth.php';
+        require 'controllers/ManajemenBarangController.php';
+        
         break;
     default:
         http_response_code(404);
