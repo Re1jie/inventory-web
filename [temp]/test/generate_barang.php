@@ -20,7 +20,7 @@ $barang = [
 // ====== Generate ID barang otomatis dan tampilkan query ======
 $id_barang = 1;
 foreach ($barang as $b) {
-    echo "INSERT INTO barang (id, id_kategori, nama_barang, stok, satuan) VALUES ($id_barang, {$b['id_kategori']}, '{$b['nama_barang']}', {$b['stok']}, '{$b['satuan']}');\n";
+    echo "INSERT INTO items (id, id_kategori, nama_barang, stok, satuan) VALUES ($id_barang, {$b['id_kategori']}, '{$b['nama_barang']}', {$b['stok']}, '{$b['satuan']}');\n";
     $id_barang++;
 }
 ?>

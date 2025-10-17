@@ -8,6 +8,6 @@ $kategori = [
 
 // ====== Tampilkan query INSERT kategori ======
 foreach ($kategori as $k) {
-    echo "INSERT INTO kategori (id, nama_kategori) VALUES ({$k['id']}, '{$k['nama_kategori']}');\n";
+    echo "INSERT INTO categories (id, nama_kategori) VALUES ({$k['id']}, '{$k['nama_kategori']}');\n";
 }
 ?>

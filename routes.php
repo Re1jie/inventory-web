@@ -1,5 +1,4 @@
 <?php
-
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $uri = substr($uri, strlen(BASE_PATH));
 
@@ -38,22 +37,23 @@ switch ($uri) {
         require 'controllers/management/UserManagementController.php';
         break;
     case '/barang':
-        require 'middleware/auth.php';
-        require 'controllers/ManajemenBarangController.php';
-        break;
     case '/barang/tambah':
-        require 'middleware/auth.php';
-        require 'controllers/ManajemenBarangController.php';
-        break;
     case '/barang/edit':
-        require 'middleware/auth.php';
-        require 'controllers/ManajemenBarangController.php';
-        break;
     case '/barang/hapus':
         require 'middleware/auth.php';
         require 'controllers/ManajemenBarangController.php';
-        
         break;
+
+    // Routing laporan (dipertahankan)
+    case '/laporan/barang-masuk':
+        require 'middleware/auth.php';
+        require 'views/report/IncomingGoodsReport.php';
+        break;
+    case '/laporan/barang-keluar':
+        require 'middleware/auth.php';
+        require 'views/report/OutgoingGoodsReport.php';
+        break;
+
     default:
         http_response_code(404);
         echo "404 - Halaman tidak ditemukan";
