@@ -36,7 +36,7 @@ switch ($uri) {
         require 'middleware/auth.php'; // Pastikan login
         require 'middleware/superadmin.php'; // Pastikan superadmin
         require 'controllers/management/UserManagementController.php';
-
+        break;
     case '/barang':
         require 'middleware/auth.php';
         require 'controllers/ManajemenBarangController.php';
