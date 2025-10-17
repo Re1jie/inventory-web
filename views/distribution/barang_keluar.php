@@ -1,5 +1,6 @@
 <?php
 // Include header layout (pastikan path ini benar sesuai struktur folder kamu)
+session_start();
 include __DIR__ . '/../layouts/header.php';
 include __DIR__ . '/../layouts/sidebar.php';
 ?>
