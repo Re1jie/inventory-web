@@ -1,27 +1,25 @@
 <?php
-// Memanggil file koneksi database dan fungsi queryData
+// Memanggil file koneksi database
 require_once __DIR__ . '/../config/database.php';
 
-// Fungsi untuk mengambil data summary
+/**
+ * Mengambil data summary utama untuk kartu di bagian atas.
+ */
 function getDashboardSummary() {
     global $conn;
     
-    // 1. Query untuk total stok dari semua barang di tabel 'items'
     $stok_query = "SELECT SUM(stok) as total_stok FROM items";
     $stok_result = queryData($stok_query);
     $total_stok = $stok_result[0]['total_stok'] ?? 0;
 
-    // 2. Query untuk jumlah barang masuk dari tabel 'distributions'
     $masuk_query = "SELECT SUM(jumlah) as total_masuk FROM distributions WHERE tipe = 'masuk'";
     $masuk_result = queryData($masuk_query);
     $total_masuk = $masuk_result[0]['total_masuk'] ?? 0;
 
-    // 3. Query untuk jumlah barang keluar dari tabel 'distributions'
     $keluar_query = "SELECT SUM(jumlah) as total_keluar FROM distributions WHERE tipe = 'keluar'";
     $keluar_result = queryData($keluar_query);
     $total_keluar = $keluar_result[0]['total_keluar'] ?? 0;
 
-    // 4. (Opsional) Query untuk jumlah jenis barang unik
     $item_query = "SELECT COUNT(id) as jumlah_item FROM items";
     $item_result = queryData($item_query);
     $jumlah_item = $item_result[0]['jumlah_item'] ?? 0;
@@ -34,33 +32,77 @@ function getDashboardSummary() {
     ];
 }
 
-// Di dalam file controllers/DashboardController.php
-
-// ... (setelah fungsi getDashboardSummary)
-
-function getRecentItems($type, $limit = 5) {
+/**
+ * Mengambil data stok berdasarkan kategori untuk Pie Chart.
+ */
+function getStockByCategory() {
+    global $conn;
     $query = "
-        SELECT d.tanggal, i.nama_barang, d.jumlah
-        FROM distributions d
-        JOIN items i ON d.id_item = i.id
-        WHERE d.tipe = '$type'
-        ORDER BY d.tanggal DESC
+        SELECT c.nama_kategori, SUM(i.stok) as total_stok_kategori
+        FROM items i
+        JOIN categories c ON i.id_kategori = c.id
+        GROUP BY c.nama_kategori
+        ORDER BY total_stok_kategori DESC
+    ";
+    return queryData($query);
+}
+
+/**
+ * Mengambil data 10 barang dengan stok terbanyak untuk Bar Chart.
+ */
+function getTopItems($limit = 10) {
+    global $conn;
+    $query = "
+        SELECT nama_barang, stok
+        FROM items
+        ORDER BY stok DESC
         LIMIT $limit
     ";
     return queryData($query);
 }
 
-// Ambil data summary dan data terkini
-$summaryData = getDashboardSummary();
-$recentMasuk = getRecentItems('masuk');
-$recentKeluar = getRecentItems('keluar');
+/**
+ * Mengambil data barang dengan stok rendah (di bawah ambang batas) untuk daftar peringatan.
+ */
+function getLowStockItems($threshold = 10) {
+    global $conn;
+    $query = "
+        SELECT nama_barang, stok, satuan
+        FROM items
+        WHERE stok <= $threshold
+        ORDER BY stok ASC
+    ";
+    return queryData($query);
+}
 
-// ... (panggil view)
+/**
+ * Mengambil data tren transaksi (masuk vs keluar) selama 30 hari terakhir untuk Line Chart.
+ */
+function getTransactionTrend() {
+    global $conn;
+    $query = "
+        SELECT
+            tanggal,
+            SUM(CASE WHEN tipe = 'masuk' THEN jumlah ELSE 0 END) as total_masuk,
+            SUM(CASE WHEN tipe = 'keluar' THEN jumlah ELSE 0 END) as total_keluar
+        FROM distributions
+        WHERE tanggal >= CURDATE() - INTERVAL 30 DAY
+        GROUP BY tanggal
+        ORDER BY tanggal ASC
+    ";
+    return queryData($query);
+}
 
-// Ambil data summary
-$summaryData = getDashboardSummary();
 
-// Panggil file view dashboard dan kirimkan data summary
+// ==================================================================
+// MENGAMBIL SEMUA DATA UNTUK DASHBOARD
+// ==================================================================
+$summaryData      = getDashboardSummary();
+$stockByCategory  = getStockByCategory();
+$topItems         = getTopItems();
+$lowStockItems    = getLowStockItems();
+$transactionTrend = getTransactionTrend();
+
+
+// Memanggil file view dan mengirimkan semua data yang sudah diambil
 require __DIR__ . '/../views/dashboard/dashboard.php';
-
-?>
