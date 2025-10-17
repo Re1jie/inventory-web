@@ -21,6 +21,9 @@ include __DIR__ . '/../layouts/header.php'; ?>
         Login
       </button>
     </form>
+    <div class="text-center mt-4">
+        <a href="<?php echo BASE_PATH; ?>/register" class="text-sm text-blue-600 hover:underline">Belum punya akun? Register di sini</a>
+    </div>
   </div>
 </div>
 

@@ -14,6 +14,12 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 if ($user = $result->fetch_assoc()) {
+    if ($user['status'] !== 'approved') {
+        $_SESSION['error'] = "Akun Anda belum aktif atau ditolak. Hubungi admin.";
+        header('Location: ' . BASE_PATH . '/login');
+        exit;
+    }
+    
     if (password_verify($password, $user['password'])) {
         // Regenerasi session ID untuk keamanan
         session_regenerate_id(true);

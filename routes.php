@@ -1,5 +1,5 @@
 <?php
-define('BASE_PATH', '/inventory-web');
+
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $uri = substr($uri, strlen(BASE_PATH));
 
@@ -15,8 +15,14 @@ switch ($uri) {
     case '/login':
         require 'views/login/LoginPage.php';
         break;
+    case '/register':
+        require 'views/register/RegisterPage.php';
+        break;    
     case '/login-post':
         require 'controllers/auth/LoginController.php';
+        break;
+    case '/register-post':
+        require 'controllers/auth/RegisterController.php';
         break;
     case '/logout':
         require 'controllers/auth/LogoutController.php';
@@ -24,6 +30,11 @@ switch ($uri) {
     case '/dashboard':
         require 'middleware/auth.php';
         require 'views/dashboard/dashboard.php';
+        break;
+    case '/user-management':
+        require 'middleware/auth.php'; // Pastikan login
+        require 'middleware/superadmin.php'; // Pastikan superadmin
+        require 'controllers/management/UserManagementController.php';
         break;
     default:
         http_response_code(404);
