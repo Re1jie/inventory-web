@@ -29,7 +29,7 @@ switch ($uri) {
         break;
     case '/dashboard':
         require 'middleware/auth.php';
-        require 'views/dashboard/dashboard.php';
+        require 'controllers/DashboardController.php';
         break;
 
     case '/user-management':
