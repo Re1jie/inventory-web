@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/../../middleware/auth.php';
 include __DIR__ . '/../layouts/header.php';
 //include __DIR__ . '/../../controllers/DistribusiController.php';
 include __DIR__ . '/../layouts/sidebar.php';
