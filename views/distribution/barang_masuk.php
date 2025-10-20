@@ -1,11 +1,11 @@
 <?php
+$page_type = 'masuk';
+include __DIR__ . '/../../controllers/DistributionController.php';
 require_once __DIR__ . '/../../middleware/auth.php';
 include __DIR__ . '/../layouts/header.php';
-//include __DIR__ . '/../../controllers/DistribusiController.php';
 include __DIR__ . '/../layouts/sidebar.php';
 ?>
 
-<!-- ✅ Konten utama diberi margin kiri agar tidak tertutup sidebar -->
 <div class="ml-64 p-6 min-h-screen bg-gray-100">
     <div class="bg-white shadow-lg rounded-2xl p-6">
         <div class="flex justify-between items-center mb-4">
@@ -18,10 +18,23 @@ include __DIR__ . '/../layouts/sidebar.php';
             </button>
         </div>
 
-        <!-- Form Search -->
+        <?php if (isset($_SESSION['success_message'])): ?>
+            <div class="mb-4 p-3 bg-green-100 text-green-700 border border-green-300 rounded">
+                <?= $_SESSION['success_message'] ?>
+            </div>
+            <?php unset($_SESSION['success_message']); ?>
+        <?php endif; ?>
+        
+        <?php if (isset($_SESSION['error_message'])): ?>
+            <div class="mb-4 p-3 bg-red-100 text-red-700 border border-red-300 rounded">
+                <?= $_SESSION['error_message'] ?>
+            </div>
+            <?php unset($_SESSION['error_message']); ?>
+        <?php endif; ?>
+
         <form method="GET" action="" class="mb-4 flex items-center gap-2">
             <input type="text" name="search" 
-                   placeholder="Cari barang atau tanggal..." 
+                   placeholder="Cari barang, tanggal, atau petugas..." 
                    value="<?= htmlspecialchars($_GET['search'] ?? '') ?>" 
                    class="border p-2 rounded w-80">
             <button type="submit" 
@@ -30,7 +43,6 @@ include __DIR__ . '/../layouts/sidebar.php';
             </button>
         </form>
 
-        <!-- Table -->
         <div class="overflow-x-auto">
             <table class="w-full border-collapse border text-sm">
                 <thead class="bg-gray-200">
@@ -50,45 +62,43 @@ include __DIR__ . '/../layouts/sidebar.php';
                     <?php if (!empty($rows)): $no=1; foreach ($rows as $r): ?>
                         <tr class="hover:bg-gray-100">
                             <td class="border p-2"><?= $no++ ?></td>
-                            <td class="border p-2"><?= htmlspecialchars($r['tanggal']) ?></td>
+                            <td class="border p-2"><?= htmlspecialchars(date('d-m-Y', strtotime($r['tanggal']))) ?></td>
+                            <td class="border p-2"><?= htmlspecialchars($r['petugas']) ?></td>
+                            <td class="border p-2"><?= htmlspecialchars($r['mitra'] ?: '-') ?></td>
                             <td class="border p-2"><?= htmlspecialchars($r['nama_barang']) ?></td>
-                            <td class="border p-2"><?= htmlspecialchars($r['nama_kategori']) ?></td>
-                            <td class="border p-2 text-center"><?= htmlspecialchars($r['jumlah']) ?></td>
-                            <td class="border p-2 text-center"><?= htmlspecialchars($r['stok']) ?></td>
-                            <td class="border p-2"><?= htmlspecialchars($r['nama_petugas']) ?></td>
-                            <td class="border p-2"><?= htmlspecialchars($r['keterangan']) ?></td>
+                            <td class="border p-2"><?= htmlspecialchars($r['kategori'] ?: '-') ?></td>
+                            <td class="border p-2 text-center text-green-600 font-medium">
+                                +<?= htmlspecialchars($r['jumlah']) ?>
+                            </td>
+                            <td class="border p-2 text-center font-bold">
+                                <?= htmlspecialchars($r['stok_terkini']) ?>
+                            </td>
+                            <td class="border p-2"><?= htmlspecialchars($r['keterangan'] ?: '-') ?></td>
                         </tr>
                     <?php endforeach; else: ?>
                         <tr>
-                            <td colspan="8" class="text-center p-4 text-gray-500">
+                            <td colspan="9" class="text-center p-4 text-gray-500">
                                 Tidak ada data ditemukan.
                             </td>
                         </tr>
                     <?php endif; ?>
-                </tbody>
+                    </tbody>
             </table>
         </div>
     </div>
 </div>
 
-<!-- Modal Tambah Barang -->
+<!-- Modal Tambah Barang Masuk -->
 <div id="modalTambah" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white p-6 rounded-xl shadow-lg w-96">
         <h3 class="text-xl font-semibold mb-4">Tambah Barang Masuk</h3>
-        <form method="POST" action="../../controllers/DistribusiController.php">
+        <form method="POST" action="">
             <div class="mb-3">
                 <label class="block text-sm font-medium">Tanggal</label>
-                <input type="date" name="tanggal" class="border p-2 rounded w-full" required>
+                <input type="date" name="tanggal" class="border p-2 rounded w-full"
+                       value="<?= date('Y-m-d') ?>" required>
             </div>
-            <div class="mb-3">
-                <label class="block text-sm font-medium">Barang</label>
-                <select name="id_item" class="border p-2 rounded w-full" required>
-                    <option value="">Pilih Barang</option>
-                    <?php foreach ($items as $i): ?>
-                        <option value="<?= $i['id'] ?>"><?= htmlspecialchars($i['nama_barang']) ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
+
             <div class="mb-3">
                 <label class="block text-sm font-medium">Petugas</label>
                 <select name="id_petugas" class="border p-2 rounded w-full" required>
@@ -98,25 +108,47 @@ include __DIR__ . '/../layouts/sidebar.php';
                     <?php endforeach; ?>
                 </select>
             </div>
+
+            <div class="mb-3">
+                <label class="block text-sm font-medium">Nama Mitra / Supplier</label>
+                <input type="text" name="nama_pelanggan" class="border p-2 rounded w-full"
+                       placeholder="Contoh: CV. Sumber Jaya">
+            </div>
+
+            <div class="mb-3">
+                <label class="block text-sm font-medium">Barang</label>
+                <select name="id_item" class="border p-2 rounded w-full" required>
+                    <option value="">Pilih Barang</option>
+                    <?php foreach ($items as $i): ?>
+                        <option value="<?= $i['id'] ?>">
+                            <?= htmlspecialchars($i['nama_barang']) ?> (Stok: <?= $i['stok'] ?>)
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
             <div class="mb-3">
                 <label class="block text-sm font-medium">Jumlah</label>
-                <input type="number" name="jumlah" class="border p-2 rounded w-full" required>
+                <input type="number" name="jumlah" class="border p-2 rounded w-full"
+                       required min="1" placeholder="Jumlah barang masuk...">
             </div>
-            <div class="mb-3">
-                <label class="block text-sm font-medium">Mitra</label>
-                <textarea name="keterangan" class="border p-2 rounded w-full"></textarea>
-            </div>
+
             <div class="mb-3">
                 <label class="block text-sm font-medium">Keterangan</label>
-                <textarea name="keterangan" class="border p-2 rounded w-full"></textarea>
+                <textarea name="keterangan" class="border p-2 rounded w-full"
+                          placeholder="Contoh: Pembelian stok baru, retur barang..."></textarea>
             </div>
+
             <div class="flex justify-end gap-2">
-                <button type="button" onclick="toggleModal()" class="bg-gray-400 text-white px-4 py-2 rounded">Batal</button>
-                <button type="submit" name="tambah" class="bg-green-600 text-white px-4 py-2 rounded">Simpan</button>
+                <button type="button" onclick="toggleModal()" 
+                        class="bg-gray-400 text-white px-4 py-2 rounded">Batal</button>
+                <button type="submit" name="tambah" 
+                        class="bg-green-600 text-white px-4 py-2 rounded">Simpan</button>
             </div>
         </form>
     </div>
 </div>
+
 
 <script>
 function toggleModal() {
