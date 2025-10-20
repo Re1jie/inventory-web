@@ -46,13 +46,21 @@ $current_page = $_SERVER['REQUEST_URI'];
 
             <!-- Link Laporan Barang Masuk -->
             <a href="<?= BASE_PATH ?>/laporan/barang-masuk" class="flex items-center gap-3 px-6 py-3 rounded-lg mx-2 transition-colors <?php echo (strpos($current_page, 'barang-masuk') !== false) ? 'bg-indigo-600' : 'hover:bg-gray-700'; ?>">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5V5.25A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25V7.5m13.5 9L12 21m0 0l-4.5-4.5M12 21V7.5" />
+                </svg>
                 <span>Laporan Barang Masuk</span>
             </a>
 
+
             <!-- Link Laporan Barang Keluar -->
             <a href="<?= BASE_PATH ?>/laporan/barang-keluar" class="flex items-center gap-3 px-6 py-3 rounded-lg mx-2 transition-colors <?php echo (strpos($current_page, 'barang-keluar') !== false) ? 'bg-indigo-600' : 'hover:bg-gray-700'; ?>">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                </svg>
                 <span>Laporan Barang Keluar</span>
             </a>
+
 
             <!-- Link Manajemen User (hanya superadmin) -->
             <?php if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'superadmin'): ?>
