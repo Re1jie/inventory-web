@@ -1,75 +1,78 @@
 <?php
-// Wajib: Memuat Model (Asumsi ada di models/LaporanModel.php)
-require_once __DIR__ . '/../models/LaporanModel.php'; 
-// Hapus atau Komen out: require_once __DIR__ . '/../../helpers/auth_helper.php'; 
-// Jika Anda sudah menjalankan middleware/auth.php di routes.php, require ini tidak diperlukan di sini.
+session_start();
+include __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../vendor/tcpdf/tcpdf.php';
 
 class LaporanController {
-    private $model;
 
-    // Pastikan Controller menerima koneksi DB ($conn)
-    public function __construct($db) {
-        // Cek otentikasi sudah diurus oleh routes.php sebelum memanggil Controller ini.
-        
-        // Inisialisasi Model
-        $this->model = new LaporanModel($db); 
+    private $conn;
+
+    public function __construct($conn) {
+        $this->conn = $conn;
     }
 
-    public function index() {
-        // Memastikan sesi sudah dimulai untuk membaca notifikasi flash, yang seharusnya sudah dilakukan oleh middleware/auth.php
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
-        }
-        
-        // Dapatkan query pencarian dan siapkan data
-        $search = $_GET['search'] ?? '';
-        
-        // Dapatkan data dari Model
-        $histori_rows = $this->model->getHistoriBarangMasuk($search);
+    public function index($search = '') {
+        // Search bisa berdasarkan nama_pelanggan, tipe, atau tanggal
+        $searchQuery = $search ? "WHERE nama_pelanggan LIKE '%$search%' OR tipe LIKE '%$search%' OR tanggal LIKE '%$search%'" : "";
 
-        // Siapkan variabel untuk View
-        $search_query = $search;
+        $sql = "SELECT id, nama_pelanggan, tipe, id_item, id_petugas, tanggal, jumlah, keterangan
+                FROM distributions
+                $searchQuery
+                ORDER BY tanggal DESC";
 
-        // Muat View
-        $view_path = __DIR__ . '/../views/laporan/Laporan_Barang_Masuk.php';
-        
-        if (file_exists($view_path)) {
-            // Include View, membuat variabel di atas tersedia di dalamnya
-            include $view_path;
-        } else {
-            // Tampilkan error jika file View tidak ditemukan
-            echo "Error: View Laporan_Barang_Masuk.php tidak ditemukan.";
-        }
-    }
-    
-    // Fungsi untuk menghapus
-    public function hapus() {
-        // Memastikan sesi sudah dimulai untuk menulis notifikasi flash
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
-        }
-        
-        if (!isset($_GET['id'])) {
-            // 🚨 PERBAIKAN: Gunakan BASE_PATH dan URL Path yang benar
-            header('Location: ' . BASE_PATH . '/laporan-barang-masuk');
-            exit;
-        }
-        
-        $id = $_GET['id'];
-        
-        if ($this->model->deleteBarangMasuk($id)) {
-            // Set pesan sukses
-            $_SESSION['message'] = "Data barang masuk berhasil dihapus.";
-        } else {
-            // Set pesan gagal
-            $_SESSION['error'] = "Gagal menghapus data barang masuk.";
-        }
-        
-        // 🚨 PERBAIKAN: Gunakan BASE_PATH dan URL Path yang benar
-        header('Location: ' . BASE_PATH . '/laporan-barang-masuk');
-        exit;
+        $result = mysqli_query($this->conn, $sql);
+        $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+        return $rows;
     }
 
-    // ... fungsi lain seperti edit() atau download()
+    public function exportPDF($rows) {
+        $pdf = new TCPDF();
+        $pdf->AddPage();
+        $pdf->SetFont('helvetica', 'B', 16);
+        $pdf->Cell(0, 10, 'Laporan Barang Masuk', 0, 1, 'C');
+        $pdf->Ln(5);
+
+        // Table Header
+        $pdf->SetFont('helvetica', 'B', 10);
+        $pdf->Cell(10, 7, '#', 1);
+        $pdf->Cell(30, 7, 'Tanggal', 1);
+        $pdf->Cell(35, 7, 'Nama Pelanggan', 1);
+        $pdf->Cell(25, 7, 'Tipe', 1);
+        $pdf->Cell(15, 7, 'ID Item', 1, 0, 'C');
+        $pdf->Cell(20, 7, 'ID Petugas', 1, 0, 'C');
+        $pdf->Cell(15, 7, 'Jumlah', 1, 0, 'C');
+        $pdf->Cell(40, 7, 'Keterangan', 1);
+        $pdf->Ln();
+
+        // Table Body
+        $pdf->SetFont('helvetica', '', 10);
+        $no = 1;
+        foreach ($rows as $r) {
+            $pdf->Cell(10, 7, $no++, 1);
+            $pdf->Cell(30, 7, $r['tanggal'], 1);
+            $pdf->Cell(35, 7, $r['nama_pelanggan'], 1);
+            $pdf->Cell(25, 7, $r['tipe'], 1);
+            $pdf->Cell(15, 7, $r['id_item'], 1, 0, 'C');
+            $pdf->Cell(20, 7, $r['id_petugas'], 1, 0, 'C');
+            $pdf->Cell(15, 7, $r['jumlah'], 1, 0, 'C');
+            $pdf->Cell(40, 7, $r['keterangan'], 1);
+            $pdf->Ln();
+        }
+
+        $pdf->Output('Laporan_Barang_Masuk.pdf', 'D');
+    }
 }
-?>
+
+// Controller instance
+$laporan = new LaporanController($conn);
+
+// Handle PDF export
+if (isset($_GET['action']) && $_GET['action'] === 'export') {
+    $rows = $laporan->index($_GET['search'] ?? '');
+    $laporan->exportPDF($rows);
+    exit;
+}
+
+// Ambil data untuk view
+$rows = $laporan->index($_GET['search'] ?? '');

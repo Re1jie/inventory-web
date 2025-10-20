@@ -1,68 +1,81 @@
 <?php
-// Wajib: Memuat Model (Menggunakan LaporanModel.php yang diasumsikan memiliki fungsi untuk data keluar)
-// Jalur mundur dua tingkat dari controllers/auth/ ke folder root, lalu masuk ke models/
-require_once __DIR__ . '/../../models/LaporanModel.php'; 
-// Wajib: Memuat Helper atau fungsi otentikasi (jika diperlukan)
-// require_once __DIR__ . '/../../../helpers/auth_helper.php'; // Hapus jika tidak perlu
+// File: controllers/OutgoingGoodsController.php
+include __DIR__ . '/../config/database.php'; // koneksi ke MySQL
+require __DIR__ . '/../vendor/autoload.php'; // jika pakai library PDF (misal Dompdf)
 
-class LaporanKeluarController {
-    private $model;
+use Dompdf\Dompdf;
 
-    public function __construct($db) {
-        // Inisialisasi Model
-        $this->model = new LaporanModel($db); 
-    }
+$action = $_GET['action'] ?? '';
 
-    public function index() {
-        // Pastikan session dimulai (penting untuk notifikasi error/success)
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
-        }
+switch ($action) {
 
-        // Ambil query pencarian dari URL
+    // Export PDF
+    case 'export':
         $search = $_GET['search'] ?? '';
-        
-        // Dapatkan data barang keluar dari Model
-        // Asumsi: Ada fungsi getHistoriBarangKeluar() di LaporanModel
-        $histori_keluar_rows = $this->model->getHistoriBarangKeluar($search);
+        $like = "%$search%";
 
-        // Siapkan variabel untuk View
-        $search_query = $search;
+        $stmt = $conn->prepare("SELECT * FROM barang_keluar 
+                                WHERE nama_pelanggan LIKE ? 
+                                OR tipe LIKE ? 
+                                OR tanggal_keluar LIKE ?");
+        $stmt->bind_param("sss", $like, $like, $like);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $rows = $result->fetch_all(MYSQLI_ASSOC);
 
-        // Muat View Laporan Barang Keluar
-        // Jalur mundur dua tingkat dari controllers/auth/ ke views/laporan/
-        $view_path = __DIR__ . '/../../views/laporan/Laporan_Barang_Keluar.php';
-        
-        if (file_exists($view_path)) {
-            // Include View, membuat variabel $histori_keluar_rows dan $search_query tersedia
-            include $view_path;
-        } else {
-            echo "Error: View Laporan_Barang_Keluar.php tidak ditemukan.";
+        // Buat HTML untuk PDF
+        $html = '<h2>Laporan Barang Keluar</h2>';
+        $html .= '<table border="1" cellpadding="5" cellspacing="0" width="100%">';
+        $html .= '<tr>
+                    <th>#</th>
+                    <th>Tanggal Keluar</th>
+                    <th>Nama Pelanggan</th>
+                    <th>Tipe</th>
+                    <th>ID Item</th>
+                    <th>ID Petugas</th>
+                    <th>Jumlah</th>
+                    <th>Tujuan</th>
+                    <th>Keterangan</th>
+                  </tr>';
+
+        $no = 1;
+        foreach ($rows as $r) {
+            $html .= '<tr>
+                        <td>'.$no++.'</td>
+                        <td>'.$r['tanggal_keluar'].'</td>
+                        <td>'.$r['nama_pelanggan'].'</td>
+                        <td>'.$r['tipe'].'</td>
+                        <td>'.$r['id_item'].'</td>
+                        <td>'.$r['id_petugas'].'</td>
+                        <td>'.$r['jumlah'].'</td>
+                        <td>'.$r['tujuan'].'</td>
+                        <td>'.$r['keterangan'].'</td>
+                      </tr>';
         }
-    }
-    
-    // Fungsi untuk menghapus data barang keluar
-    public function hapus() {
-        if (session_status() == PHP_SESSION_NONE) { session_start(); }
-        
-        if (!isset($_GET['id'])) {
-            header('Location: ' . BASE_PATH . '/laporan-barang-keluar');
-            exit;
-        }
-        
-        $id = $_GET['id'];
-        
-        // Asumsi: Ada fungsi deleteBarangKeluar() di LaporanModel
-        if ($this->model->deleteBarangKeluar($id)) {
-            $_SESSION['message'] = "Data barang keluar berhasil dihapus.";
-        } else {
-            $_SESSION['error'] = "Gagal menghapus data barang keluar.";
-        }
-        
-        // Redirect kembali ke halaman laporan menggunakan BASE_PATH
-        header('Location: ' . BASE_PATH . '/laporan-barang-keluar');
+        $html .= '</table>';
+
+        $dompdf = new Dompdf();
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'landscape');
+        $dompdf->render();
+        $dompdf->stream('laporan_barang_keluar.pdf', ['Attachment' => true]);
         exit;
-    }
+        break;
 
-    // Anda bisa menambahkan fungsi edit() atau download() di sini
+    // Default: tampil view
+    default:
+        $search = $_GET['search'] ?? '';
+        $like = "%$search%";
+
+        $stmt = $conn->prepare("SELECT * FROM barang_keluar 
+                                WHERE nama_pelanggan LIKE ? 
+                                OR tipe LIKE ? 
+                                OR tanggal_keluar LIKE ?");
+        $stmt->bind_param("sss", $like, $like, $like);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $rows = $result->fetch_all(MYSQLI_ASSOC);
+
+        include __DIR__ . '/../views/report/OutgoingGoodsReport.php';
+        break;
 }
