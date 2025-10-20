@@ -1,11 +1,12 @@
 <?php
 include __DIR__ . '/../layouts/header.php'; 
+// [ TAMBAHAN ] Memulai session untuk membaca notifikasi error
+session_start(); 
 ?>
 
 <div class="min-h-screen flex items-center justify-center bg-gray-100">
   <div class="flex flex-col md:flex-row bg-white rounded-3xl shadow-2xl overflow-hidden w-11/12 md:w-4/5 lg:w-3/4">
     
-    <!-- Kiri: Info dan ilustrasi -->
     <div class="bg-indigo-500 text-white md:w-1/2 flex flex-col justify-center items-center p-10 space-y-6">
       <div class="text-left w-full">
         <h1 class="text-3xl font-bold leading-snug">
@@ -18,13 +19,29 @@ include __DIR__ . '/../layouts/header.php';
       <p class="text-sm opacity-80">Mulai perjalanan efisiensi inventori Anda hari ini.</p>
     </div>
 
-    <!-- Kanan: Form Login -->
     <div class="md:w-1/2 bg-white px-10 py-12 flex flex-col justify-center">
       <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center">Login untuk Memulai</h2>
 
+      <?php 
+      // Cek notifikasi session timeout (dari query parameter)
+      if (isset($_GET['reason']) && $_GET['reason'] === 'timeout'): 
+      ?>
+          <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded relative mb-4" role="alert">
+              <span class="block sm:inline">Sesi Anda telah berakhir. Silakan login kembali.</span>
+          </div>
+      <?php 
+      endif; 
+  
+      // Cek notifikasi error login gagal (dari session)
+      if (isset($_SESSION['error'])): 
+      ?>
+          <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+              <span class="block sm:inline"><?= htmlspecialchars($_SESSION['error']); ?></span>
+          </div>
+          <?php unset($_SESSION['error']); // Hapus notifikasi setelah ditampilkan ?>
+      <?php endif; ?>
       <form action="<?php echo BASE_PATH; ?>/login-post" method="post" class="space-y-4">
         
-        <!-- Username / Email -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
           <div class="flex items-center border border-gray-300 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-indigo-400">
@@ -35,7 +52,6 @@ include __DIR__ . '/../layouts/header.php';
           </div>
         </div>
 
-        <!-- Password -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
           <div class="flex items-center border border-gray-300 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-indigo-400">
@@ -44,8 +60,8 @@ include __DIR__ . '/../layouts/header.php';
             <input id="password" type="password" name="password" placeholder="Enter your password"
                    class="w-full focus:outline-none text-gray-700" required>
             <button id="togglePwd" type="button"
-                    class="ml-2 text-gray-500 hover:text-gray-700 focus:outline-none"
-                    aria-label="Show password" title="Show password" aria-pressed="false">
+                     class="ml-2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                     aria-label="Show password" title="Show password" aria-pressed="false">
               <i class="fa fa-eye"></i>
             </button>
           </div>
@@ -53,7 +69,7 @@ include __DIR__ . '/../layouts/header.php';
 
         <div class="flex items-center justify-between text-sm text-gray-600">
           <label class="flex items-center space-x-2">
-            <input type="checkbox" class="rounded border-gray-300">
+            <input type="checkbox" name="remember" class="rounded border-gray-300">
             <span>Remember me</span>
           </label>
           <a href="#" class="hover:underline text-indigo-600">Forgot password?</a>
@@ -81,7 +97,6 @@ include __DIR__ . '/../layouts/header.php';
   </div>
 </div>
 
-<!-- Script toggle password -->
 <script>
   (function(){
     const pwdInput = document.getElementById('password');

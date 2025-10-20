@@ -15,7 +15,7 @@ if ($_SESSION['auth_token'] !== $_COOKIE['auth_token']) {
 }
 
 // Fungsi untuk membersihkan session dan redirect ke login
-function logout_and_redirect() {
+function logout_and_redirect() {    
     // Hapus semua data session
     $_SESSION = [];
     
@@ -26,7 +26,7 @@ function logout_and_redirect() {
     
     session_destroy();
     
-    header('Location: ' . BASE_PATH . '/login');
+    header('Location: ' . BASE_PATH . '/login?reason=timeout');
     exit;
 }
 ?>

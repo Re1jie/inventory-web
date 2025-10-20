@@ -7,6 +7,15 @@ $username = $_POST['username'];
 $password = $_POST['password'];
 
 
+$remember = isset($_POST['remember']);
+
+$token_expiry = $remember ? time() + (86400 * 30) : time() + 3600; // 86400 = 1 hari
+
+$session_cookie_lifetime = $remember ? (86400 * 30) : 0;
+
+session_set_cookie_params($session_cookie_lifetime, '/', '', true, true);
+
+
 $query = "SELECT * FROM users WHERE username = ?";
 $stmt = $conn->prepare($query);
 $stmt->bind_param("s", $username);
@@ -22,6 +31,7 @@ if ($user = $result->fetch_assoc()) {
     
     if (password_verify($password, $user['password'])) {
         // Regenerasi session ID untuk keamanan
+        // Ini akan menggunakan pengaturan cookie_params yang baru saja kita atur
         session_regenerate_id(true);
 
         // Buat token unik
@@ -35,9 +45,9 @@ if ($user = $result->fetch_assoc()) {
         ];
         $_SESSION['auth_token'] = $token;
 
-        // Kirim token yang sama ke cookie pengguna
-        // Cookie berlaku selama 1 jam (3600 detik)
-        setcookie('auth_token', $token, time() + 3600, '/', '', true, true); // secure dan httponly
+        // 5. Kirim token yang sama ke cookie pengguna DENGAN MASA BERLAKU BARU
+        // Cookie berlaku selama $token_expiry (1 jam atau 30 hari)
+        setcookie('auth_token', $token, $token_expiry, '/', '', true, true); // secure dan httponly
 
         // Arahkan ke dashboard
         header('Location: ' . BASE_PATH . '/dashboard');
