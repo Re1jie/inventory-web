@@ -37,11 +37,12 @@ include __DIR__ . '/../layouts/sidebar.php';
                     <tr>
                         <th class="border p-2">#</th>
                         <th class="border p-2">Tanggal</th>
+                        <th class="border p-2">Petugas</th>
+                        <th class="border p-2">Mitra</th>
                         <th class="border p-2">Nama Barang</th>
                         <th class="border p-2">Kategori</th>
                         <th class="border p-2">Jumlah</th>
                         <th class="border p-2">Stok Terkini</th>
-                        <th class="border p-2">Petugas</th>
                         <th class="border p-2">Keterangan</th>
                     </tr>
                 </thead>
@@ -100,6 +101,10 @@ include __DIR__ . '/../layouts/sidebar.php';
             <div class="mb-3">
                 <label class="block text-sm font-medium">Jumlah</label>
                 <input type="number" name="jumlah" class="border p-2 rounded w-full" required>
+            </div>
+            <div class="mb-3">
+                <label class="block text-sm font-medium">Mitra</label>
+                <textarea name="keterangan" class="border p-2 rounded w-full"></textarea>
             </div>
             <div class="mb-3">
                 <label class="block text-sm font-medium">Keterangan</label>
