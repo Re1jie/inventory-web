@@ -1,31 +1,114 @@
 <?php
-include __DIR__ . '/../layouts/header.php'; ?>
+include __DIR__ . '/../layouts/header.php'; 
+?>
 
-<div class="min-h-screen flex items-center justify-center">
-  <div class="w-full max-w-md bg-white rounded-lg shadow p-6">
-    <h2 class="text-2xl font-semibold text-center mb-6">Login Inventory</h2>
-    <form action="<?php echo BASE_PATH; ?>/login-post" method="post" class="space-y-4">
-      <div>
-        <label class="block text-sm font-medium">
-            Username
-        </label>
-        <input type="text" name="username" class="mt-1 w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-500" required>
+<div class="min-h-screen flex items-center justify-center bg-gray-100">
+  <div class="flex flex-col md:flex-row bg-white rounded-3xl shadow-2xl overflow-hidden w-11/12 md:w-4/5 lg:w-3/4">
+    
+    <!-- Kiri: Info dan ilustrasi -->
+    <div class="bg-indigo-500 text-white md:w-1/2 flex flex-col justify-center items-center p-10 space-y-6">
+      <div class="text-left w-full">
+        <h1 class="text-3xl font-bold leading-snug">
+          Kelola barang, <br> Lapor barang, <br> Semua jadi satu.
+        </h1>
       </div>
-      <div>
-        <label class="block text-sm font-medium">
-            Password
-        </label>
-        <input type="password" name="password" class="mt-1 w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-500" required>
+      <div class="flex justify-center">
+        <img src="<?php echo BASE_PATH; ?>/assets/images/kardusataulogo.png" alt="Gambar Kardus atau Logo" class="w-60">
       </div>
-      <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition">
-        Login
-      </button>
-    </form>
-    <div class="text-center mt-4">
-        <a href="<?php echo BASE_PATH; ?>/register" class="text-sm text-blue-600 hover:underline">Belum punya akun? Register di sini</a>
+      <p class="text-sm opacity-80">Mulai perjalanan efisiensi inventori Anda hari ini.</p>
+    </div>
+
+    <!-- Kanan: Form Login -->
+    <div class="md:w-1/2 bg-white px-10 py-12 flex flex-col justify-center">
+      <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center">Login untuk Memulai</h2>
+
+      <form action="<?php echo BASE_PATH; ?>/login-post" method="post" class="space-y-4">
+        
+        <!-- Username / Email -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+          <div class="flex items-center border border-gray-300 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-indigo-400">
+            <i class="fa fa-user text-gray-400 mr-2"></i>
+            <div class="border-l border-gray-300 h-5 mr-2"></div>
+            <input type="text" name="username" placeholder="Enter your email"
+                   class="w-full focus:outline-none text-gray-700" required>
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+          <div class="flex items-center border border-gray-300 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-indigo-400">
+            <i class="fa fa-lock text-gray-400 mr-2"></i>
+            <div class="border-l border-gray-300 h-5 mr-2"></div>
+            <input id="password" type="password" name="password" placeholder="Enter your password"
+                   class="w-full focus:outline-none text-gray-700" required>
+            <button id="togglePwd" type="button"
+                    class="ml-2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                    aria-label="Show password" title="Show password" aria-pressed="false">
+              <i class="fa fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between text-sm text-gray-600">
+          <label class="flex items-center space-x-2">
+            <input type="checkbox" class="rounded border-gray-300">
+            <span>Remember me</span>
+          </label>
+          <a href="#" class="hover:underline text-indigo-600">Forgot password?</a>
+        </div>
+
+        <button type="submit" 
+                class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition font-medium shadow">
+          Login
+        </button>
+      </form>
+
+      <div class="mt-6 text-center text-gray-500 text-sm">Atau login dengan</div>
+
+      <div class="flex justify-center space-x-4 mt-3">
+        <a href="#" class="text-gray-600 hover:text-indigo-600"><i class="fab fa-google text-xl"></i></a>
+      </div>
+
+      <div class="text-center mt-6">
+        <p class="text-sm text-gray-600">
+          Belum punya akun? 
+          <a href="<?php echo BASE_PATH; ?>/register" class="text-indigo-600 hover:underline">Daftar di sini</a>
+        </p>
+      </div>
     </div>
   </div>
 </div>
 
+<!-- Script toggle password -->
+<script>
+  (function(){
+    const pwdInput = document.getElementById('password');
+    const toggleBtn = document.getElementById('togglePwd');
+    const icon = toggleBtn.querySelector('i');
+
+    toggleBtn.addEventListener('click', function(){
+      const isHidden = pwdInput.type === 'password';
+      if(isHidden){
+        pwdInput.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+        toggleBtn.setAttribute('aria-label', 'Hide password');
+        toggleBtn.title = 'Hide password';
+        toggleBtn.setAttribute('aria-pressed', 'true');
+      } else {
+        pwdInput.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+        toggleBtn.setAttribute('aria-label', 'Show password');
+        toggleBtn.title = 'Show password';
+        toggleBtn.setAttribute('aria-pressed', 'false');
+      }
+    });
+  })();
+</script>
+
 <?php
-include __DIR__ . '/../layouts/footer.php'; ?>1
+include __DIR__ . '/../layouts/footer.php'; 
+?>
