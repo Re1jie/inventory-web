@@ -6,25 +6,35 @@ include __DIR__ . '/../layouts/sidebar.php';
 <div class="ml-64 p-6 min-h-screen bg-gray-100">
     <div class="bg-white shadow-lg rounded-2xl p-6">
         <div class="flex justify-between items-center mb-4">
-            <h2 class="text-2xl font-semibold flex items-center gap-2">
-                📦 Laporan Barang Keluar
-            </h2>
-            <a href="?action=export<?= isset($_GET['search']) ? '&search=' . urlencode($_GET['search']) : '' ?>" 
+            <h2 class="text-2xl font-semibold flex items-center gap-2">📦 Laporan Barang Keluar</h2>
+            <a href="?action=export&nama_pelanggan=<?= urlencode($_GET['nama_pelanggan'] ?? '') ?>&tanggal_mulai=<?= $_GET['tanggal_mulai'] ?? '' ?>&tanggal_selesai=<?= $_GET['tanggal_selesai'] ?? '' ?>&tipe=<?= $_GET['tipe'] ?? '' ?>"
                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-               ⬇️ Download PDF
+                ⬇️ Download PDF
             </a>
         </div>
 
-        <!-- Form Search -->
-        <form method="GET" action="" class="mb-4 flex items-center gap-2">
-            <input type="text" name="search" 
-                   placeholder="Cari nama pelanggan, tipe, atau tanggal..." 
-                   value="<?= htmlspecialchars($_GET['search'] ?? '') ?>" 
-                   class="border p-2 rounded w-80">
-            <button type="submit" 
-                    class="bg-gray-700 text-white px-3 py-2 rounded">
-                Search
-            </button>
+        <!-- Filter -->
+        <form method="GET" action="" class="flex flex-wrap gap-2 mb-4">
+            <input type="text" name="nama_pelanggan" placeholder="Cari nama pelanggan..." 
+                value="<?= htmlspecialchars($_GET['nama_pelanggan'] ?? '') ?>" 
+                class="border p-2 rounded w-64">
+
+            <input type="date" name="tanggal_mulai" 
+                value="<?= htmlspecialchars($_GET['tanggal_mulai'] ?? '') ?>" 
+                class="border p-2 rounded">
+
+            <input type="date" name="tanggal_selesai" 
+                value="<?= htmlspecialchars($_GET['tanggal_selesai'] ?? '') ?>" 
+                class="border p-2 rounded">
+
+            <select name="tipe" class="border p-2 rounded">
+                <option>Semua Tipe</option>
+                <option value="Retail" <?= (($_GET['tipe'] ?? '') === 'Retail') ? 'selected' : '' ?>>Retail</option>
+                <option value="Grosir" <?= (($_GET['tipe'] ?? '') === 'Grosir') ? 'selected' : '' ?>>Grosir</option>
+            </select>
+
+            <button type="submit" class="bg-gray-700 text-white px-3 py-2 rounded">🔍 Filter</button>
+            <a href="?" class="bg-gray-400 text-white px-3 py-2 rounded">🔄 Reset</a>
         </form>
 
         <!-- Table -->
@@ -58,9 +68,7 @@ include __DIR__ . '/../layouts/sidebar.php';
                         </tr>
                     <?php endforeach; else: ?>
                         <tr>
-                            <td colspan="9" class="text-center p-4 text-gray-500">
-                                Tidak ada data ditemukan.
-                            </td>
+                            <td colspan="9" class="text-center p-4 text-gray-500">Tidak ada data ditemukan.</td>
                         </tr>
                     <?php endif; ?>
                 </tbody>
