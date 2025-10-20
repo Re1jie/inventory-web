@@ -41,7 +41,7 @@ switch ($uri) {
     case '/barang/edit':
     case '/barang/hapus':
         require 'middleware/auth.php';
-        require 'controllers/ManajemenBarangController.php';
+        require 'controllers/auth/ManajemenBarangController.php';
         break;
 
     // Routing laporan (dipertahankan)
