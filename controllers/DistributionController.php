@@ -6,7 +6,6 @@ if (session_status() == PHP_SESSION_NONE) {
 
 // Panggil file koneksi
 require_once __DIR__ . '/../config/database.php';
-
 // =================================================================
 // 1. LOGIKA HANDLE FORM (TAMBAH BARANG MASUK)
 // =================================================================
@@ -17,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah'])) {
     $id_petugas = $_POST['id_petugas'];
     $tanggal = $_POST['tanggal'];
     $jumlah = (int)$_POST['jumlah'];
-    $nama_pelanggan = trim($_POST['nama_pelanggan'] ?? ''); // ambil dari input form
+    $nama_pelanggan = trim($_POST['nama_pelanggan'] ?? '');
     $keterangan = $_POST['keterangan'] ?? null;
 
     $tipe = 'masuk';
@@ -25,7 +24,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah'])) {
     // Validasi sederhana
     if ($jumlah <= 0) {
         $_SESSION['error_message'] = "Jumlah barang harus lebih dari 0.";
-        header('Location: ../views/distribusi/barang_masuk.php');
+        // PERBAIKAN: Gunakan $_SERVER['PHP_SELF'] atau path absolut dari root
+        header('Location: ' . $_SERVER['PHP_SELF']);
         exit;
     }
 
@@ -53,10 +53,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah'])) {
         $_SESSION['error_message'] = "Gagal menyimpan data: " . $e->getMessage();
     }
 
-    header('Location: ../views/distribusi/barang_masuk.php');
+    // PERBAIKAN: Redirect ke halaman yang sama
+    header('Location: ' . $_SERVER['PHP_SELF']);
     exit;
 }
-
 // =================================================================
 // 2. LOGIKA HANDLE FORM (TAMBAH BARANG KELUAR)
 // =================================================================
@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah_keluar'])) {
     $id_petugas = $_POST['id_petugas'];
     $tanggal = $_POST['tanggal'];
     $jumlah = (int)$_POST['jumlah'];
-    $nama_pelanggan = $_POST['nama_pelanggan'] ?? null;
+    $nama_pelanggan = trim($_POST['nama_pelanggan'] ?? '');
     $keterangan = $_POST['keterangan'] ?? null;
     
     $tipe = 'keluar';
@@ -75,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah_keluar'])) {
     // Validasi
     if ($jumlah <= 0) {
         $_SESSION['error_message'] = "Jumlah barang harus lebih dari 0.";
-        header('Location: ../views/distribusi/barang_keluar.php');
+        header('Location: ' . $_SERVER['PHP_SELF']);
         exit;
     }
 
@@ -88,9 +88,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah_keluar'])) {
         $current_stok = $stmt_check->fetchColumn();
 
         if ($jumlah > $current_stok) {
-            $_SESSION['error_message'] = "Gagal. Stok barang tidak mencukupi (Stok saat ini: $current_stok).";
-            header('Location: ../views/distribusi/barang_keluar.php');
             $pdo->rollBack();
+            $_SESSION['error_message'] = "Gagal. Stok barang tidak mencukupi (Stok saat ini: $current_stok).";
+            header('Location: ' . $_SERVER['PHP_SELF']);
             exit;
         }
 
@@ -115,11 +115,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah_keluar'])) {
         $_SESSION['error_message'] = "Gagal menyimpan data: " . $e->getMessage();
     }
 
-    header('Location: ../views/distribusi/barang_keluar.php');
+    // PERBAIKAN: Redirect ke halaman yang sama
+    header('Location: ' . $_SERVER['PHP_SELF']);
     exit;
 }
-
-
 // =================================================================
 // 3. LOGIKA AMBIL DATA UNTUK TAMPILAN (VIEW)
 // =================================================================
