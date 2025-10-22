@@ -44,6 +44,18 @@ switch ($uri) {
         require 'controllers/auth/ManajemenBarangController.php';
         break;
 
+        case '/barang-masuk':
+        require 'middleware/auth.php';
+        // View ini sudah otomatis memuat controller-nya sendiri
+        require 'views/distribution/barang_masuk.php';
+        break;
+
+    case '/barang-keluar':
+        require 'middleware/auth.php';
+        // View ini sudah otomatis memuat controller-nya sendiri
+        require 'views/distribution/barang_keluar.php';
+        break;
+
     // Routing laporan (dipertahankan)
     case '/laporan/barang-masuk':
         require 'middleware/auth.php';
