@@ -10,7 +10,7 @@ session_start();
     <div class="bg-indigo-500 text-white md:w-1/2 flex flex-col justify-center items-center p-10 space-y-6">
       <div class="text-left w-full">
         <h1 class="text-3xl font-bold leading-snug">
-          Kelola barang, <br> Pantau stok, <br> Tingkatkan efisiensi.
+          Kelola barang, <br> Lapor barang, <br> Semua jadi satu.
         </h1>
       </div>
       <div class="flex justify-center">
@@ -21,7 +21,7 @@ session_start();
 
     <!-- Kanan: Form Register -->
     <div class="md:w-1/2 bg-white px-10 py-12 flex flex-col justify-center">
-      <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center">Buat Akun Baru</h2>
+      <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center">Daftar Akun Baru</h2>
 
       <?php if (isset($_SESSION['error'])): ?>
         <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">

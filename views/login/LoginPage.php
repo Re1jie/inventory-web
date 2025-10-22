@@ -47,7 +47,7 @@ session_start();
           <div class="flex items-center border border-gray-300 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-indigo-400">
             <i class="fa fa-user text-gray-400 mr-2"></i>
             <div class="border-l border-gray-300 h-5 mr-2"></div>
-            <input type="text" name="username" placeholder="Enter your email"
+            <input type="text" name="username" placeholder="Masukkan username"
                    class="w-full focus:outline-none text-gray-700" required>
           </div>
         </div>
@@ -57,7 +57,7 @@ session_start();
           <div class="flex items-center border border-gray-300 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-indigo-400">
             <i class="fa fa-lock text-gray-400 mr-2"></i>
             <div class="border-l border-gray-300 h-5 mr-2"></div>
-            <input id="password" type="password" name="password" placeholder="Enter your password"
+            <input id="password" type="password" name="password" placeholder="Masukkan password"
                    class="w-full focus:outline-none text-gray-700" required>
             <button id="togglePwd" type="button"
                      class="ml-2 text-gray-500 hover:text-gray-700 focus:outline-none"
@@ -75,17 +75,21 @@ session_start();
           <a href="#" class="hover:underline text-indigo-600">Forgot password?</a>
         </div>
 
-        <button type="submit" 
-                class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition font-medium shadow">
-          Login
-        </button>
+        <button id="loginBtn" type="submit" 
+        class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition font-medium shadow flex justify-center items-center gap-2">
+  <span id="loginText">Login</span>
+  <span id="loginSpinner" class="hidden">
+    <i class="fa fa-spinner fa-spin"></i>
+  </span>
+</button>
+
       </form>
 
-      <div class="mt-6 text-center text-gray-500 text-sm">Atau login dengan</div>
+      <!-- <div class="mt-6 text-center text-gray-500 text-sm">Atau login dengan</div> -->
 
-      <div class="flex justify-center space-x-4 mt-3">
+      <!-- <div class="flex justify-center space-x-4 mt-3">
         <a href="#" class="text-gray-600 hover:text-indigo-600"><i class="fab fa-google text-xl"></i></a>
-      </div>
+      </div> -->
 
       <div class="text-center mt-6">
         <p class="text-sm text-gray-600">
@@ -121,6 +125,18 @@ session_start();
         toggleBtn.setAttribute('aria-pressed', 'false');
       }
     });
+    // loading animasi saat submit
+const form = document.querySelector('form');
+const loginBtn = document.getElementById('loginBtn');
+const loginText = document.getElementById('loginText');
+const loginSpinner = document.getElementById('loginSpinner');
+
+form.addEventListener('submit', function() {
+  loginBtn.disabled = true;
+  loginText.classList.add('hidden');
+  loginSpinner.classList.remove('hidden');
+});
+
   })();
 </script>
 
