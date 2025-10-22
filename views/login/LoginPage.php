@@ -72,7 +72,7 @@ session_start();
             <input type="checkbox" name="remember" class="rounded border-gray-300">
             <span>Remember me</span>
           </label>
-          <a href="#" class="hover:underline text-indigo-600">Forgot password?</a>
+          <!-- <a href="#" class="hover:underline text-indigo-600">Forgot password?</a> -->
         </div>
 
         <button id="loginBtn" type="submit" 
