@@ -21,12 +21,18 @@ class Barang {
                 i.nama_barang AS nama, 
                 c.nama_kategori AS kategori, 
                 i.stok, 
-                i.satuan
-                -- i.gambar (kolom gambar tidak ada di tabel 'items')
+                i.satuan,
+                i.gambar -- [DITAMBAHKAN]
             FROM items i
             LEFT JOIN categories c ON i.id_kategori = c.id
             ORDER BY i.nama_barang
         ";
+        $stmt = $this->conn->query($query);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getAllCategories() {
+        $query = "SELECT id, nama_kategori FROM categories ORDER BY nama_kategori ASC";
         $stmt = $this->conn->query($query);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -41,7 +47,8 @@ class Barang {
                 i.nama_barang AS nama, 
                 c.nama_kategori AS kategori, 
                 i.stok, 
-                i.satuan
+                i.satuan,
+                i.gambar -- [DITAMBAHKAN]
             FROM items i
             LEFT JOIN categories c ON i.id_kategori = c.id
             WHERE i.id = ?
@@ -79,16 +86,16 @@ class Barang {
         $id_kategori = $this->getKategoriId($data['kategori']);
 
         $stmt = $this->conn->prepare("
-            INSERT INTO items (nama_barang, id_kategori, stok, satuan) 
-            VALUES (?, ?, ?, ?)
+            INSERT INTO items (nama_barang, id_kategori, stok, satuan, gambar) 
+            VALUES (?, ?, ?, ?, ?) -- [DITAMBAHKAN]
         ");
         
         return $stmt->execute([
             $data['nama'], 
             $id_kategori, 
             $data['stok'], 
-            $data['satuan']
-            // $data['gambar'] ?? null (kolom gambar tidak ada)
+            $data['satuan'],
+            $data['gambar'] ?? null // [DITAMBAHKAN]
         ]);
     }
 
@@ -101,15 +108,16 @@ class Barang {
 
         $stmt = $this->conn->prepare("
             UPDATE items 
-            SET nama_barang = ?, id_kategori = ?, stok = ?, satuan = ?
+            SET nama_barang = ?, id_kategori = ?, stok = ?, satuan = ?, gambar = ?
             WHERE id = ?
-        ");
+        "); // [DITAMBAHKAN]
         
         return $stmt->execute([
             $data['nama'], 
             $id_kategori, 
             $data['stok'], 
             $data['satuan'],
+            $data['gambar'] ?? null, // [DITAMBAHKAN]
             $id
         ]);
     }
@@ -118,7 +126,15 @@ class Barang {
      * Menghapus data barang
      */
     public function delete($id) {
-        // Ganti 'barang' menjadi 'items'
+        // [OPSIONAL] Hapus file gambar sebelum menghapus data DB
+        $barang = $this->find($id);
+        if (!empty($barang['gambar'])) {
+            $filePath = __DIR__ . '/..' . $barang['gambar'];
+            if (file_exists($filePath)) {
+                @unlink($filePath); // Gunakan @ untuk menekan error jika file tidak ditemukan
+            }
+        }
+
         $stmt = $this->conn->prepare("DELETE FROM items WHERE id=?");
         return $stmt->execute([$id]);
     }
