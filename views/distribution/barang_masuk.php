@@ -1,7 +1,6 @@
 <?php
 $page_type = 'masuk';
 include __DIR__ . '/../../controllers/DistributionController.php';
-require_once __DIR__ . '/../../middleware/auth.php';
 include __DIR__ . '/../layouts/header.php';
 include __DIR__ . '/../layouts/sidebar.php';
 ?>

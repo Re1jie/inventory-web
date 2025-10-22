@@ -1,5 +1,5 @@
 <?php
-//gitsession_start();
+session_start();
 require_once __DIR__ . '/../config/config.php'; // Load BASE_PATH
 
 // Periksa apakah user sudah login DAN token-nya valid
