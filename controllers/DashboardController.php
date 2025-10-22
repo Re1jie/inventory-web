@@ -93,6 +93,41 @@ function getTransactionTrend() {
     return queryData($query);
 }
 
+// ==================================================================
+// [BARU] FUNGSI UNTUK MENGAMBIL 5 TRANSAKSI TERAKHIR
+// ==================================================================
+/**
+ * Mengambil 5 data barang masuk terakhir.
+ */
+function getRecentMasuk($limit = 5) {
+    global $conn;
+    $query = "
+        SELECT d.tanggal, i.nama_barang, d.jumlah 
+        FROM distributions d
+        JOIN items i ON d.id_item = i.id
+        WHERE d.tipe = 'masuk'
+        ORDER BY d.tanggal DESC, d.id DESC 
+        LIMIT $limit
+    ";
+    return queryData($query);
+}
+
+/**
+ * Mengambil 5 data barang keluar terakhir.
+ */
+function getRecentKeluar($limit = 5) {
+    global $conn;
+    $query = "
+        SELECT d.tanggal, i.nama_barang, d.jumlah 
+        FROM distributions d
+        JOIN items i ON d.id_item = i.id
+        WHERE d.tipe = 'keluar'
+        ORDER BY d.tanggal DESC, d.id DESC 
+        LIMIT $limit
+    ";
+    return queryData($query);
+}
+
 
 // ==================================================================
 // MENGAMBIL SEMUA DATA UNTUK DASHBOARD
@@ -102,7 +137,11 @@ $stockByCategory  = getStockByCategory();
 $topItems         = getTopItems();
 $lowStockItems    = getLowStockItems();
 $transactionTrend = getTransactionTrend();
+$recentMasuk      = getRecentMasuk();   // Panggil fungsi baru
+$recentKeluar     = getRecentKeluar();  // Panggil fungsi baru
 
 
 // Memanggil file view dan mengirimkan semua data yang sudah diambil
 require __DIR__ . '/../views/dashboard/dashboard.php';
+
+?>

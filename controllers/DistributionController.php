@@ -29,6 +29,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah'])) {
         header('Location: ' . BASE_PATH . '/barang-masuk');
         exit;
     }
+}
+// =================================================================
+// 1. LOGIKA HANDLE FORM (TAMBAH BARANG MASUK)
+// =================================================================
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah'])) {
+    if (session_status() == PHP_SESSION_NONE) {
+        session_start();
+    }
+    $id_item = $_POST['id_item'];
+    $id_petugas = $_POST['id_petugas'];
+    $tanggal = $_POST['tanggal'];
+    $jumlah = (int)$_POST['jumlah'];
+    $nama_pelanggan = trim($_POST['nama_pelanggan'] ?? '');
+    $keterangan = $_POST['keterangan'] ?? null;
+    $tipe = 'masuk';
+
+    // *** TAMBAHKAN VALIDASI TANGGAL DI SINI ***
+    $tanggal_sekarang = date('Y-m-d');
+    if ($tanggal > $tanggal_sekarang) {
+        $_SESSION['error_message'] = "Tanggal transaksi tidak boleh melebihi tanggal hari ini.";
+        header('Location: ' . BASE_PATH . '/barang-masuk');
+        exit;
+    }
+    // *** AKHIR VALIDASI TANGGAL ***
+
+    if ($jumlah <= 0) {
+        $_SESSION['error_message'] = "Jumlah barang harus lebih dari 0.";
+        header('Location: ' . BASE_PATH . '/barang-masuk');
+        exit;
+    }
 
     try {
         $pdo->beginTransaction();
@@ -69,6 +99,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah_keluar'])) {
     if ($jumlah <= 0) {
         $_SESSION['error_message'] = "Jumlah barang harus lebih dari 0.";
         header('Location: ' . $_SERVER['PHP_SELF']);
+        exit;
+    }
+}
+// =================================================================
+// 2. LOGIKA HANDLE FORM (TAMBAH BARANG KELUAR)
+// =================================================================
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah_keluar'])) {
+
+    $id_item = $_POST['id_item'];
+    $id_petugas = $_POST['id_petugas'];
+    $tanggal = $_POST['tanggal'];
+    $jumlah = (int)$_POST['jumlah'];
+    $nama_pelanggan = trim($_POST['nama_pelanggan'] ?? '');
+    $keterangan = $_POST['keterangan'] ?? null;
+    $tipe = 'keluar';
+
+    // *** TAMBAHKAN VALIDASI TANGGAL DI SINI ***
+    $tanggal_sekarang = date('Y-m-d');
+    if ($tanggal > $tanggal_sekarang) {
+        $_SESSION['error_message'] = "Tanggal transaksi tidak boleh melebihi tanggal hari ini.";
+        header('Location: ' . BASE_PATH . '/barang-keluar');
+        exit;
+    }
+    // *** AKHIR VALIDASI TANGGAL ***
+
+    if ($jumlah <= 0) {
+        $_SESSION['error_message'] = "Jumlah barang harus lebih dari 0.";
+        header('Location: ' . BASE_PATH . '/barang-keluar'); // Perbaikan: Redirect ke barang-keluar
         exit;
     }
 
