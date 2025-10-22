@@ -41,6 +41,7 @@ if ($user = $result->fetch_assoc()) {
         $_SESSION['user'] = [
             'id' => $user['id'],
             'username' => $user['username'],
+            'email' => $user['email'], // [DITAMBAHKAN] Menyimpan email ke session
             'role' => $user['role']
         ];
         $_SESSION['auth_token'] = $token;
