@@ -27,7 +27,7 @@ $current_page = $_SERVER['REQUEST_URI'];
         <nav class="flex flex-col mt-4 space-y-1">
             
             <!-- Link Dashboard -->
-            <a href="<?= BASE_PATH ?>/dashboard" class="flex items-center gap-3 px-6 py-3 rounded-lg mx-2 transition-colors <?php echo (strpos($current_page, '/dashboard') !== false) ? 'bg-[#F1C045] text-gray-900' : 'hover:bg-[#F1C045] hover:text-gray-900'; ?>">
+            <a href="<?= BASE_PATH ?>/dashboard" class="flex items-center gap-3 px-6 py-3 rounded-lg mx-2 transition-colors <?php echo (strpos($current_page, '/dashboard') !== false) ? 'bg-[#F1C045] text-[#631A13]-900' : 'hover:bg-[#F1C045] hover:text-[#631A13]-900'; ?>">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                 </svg>

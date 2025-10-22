@@ -107,6 +107,182 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah_keluar'])) {
     exit;
 }
 // =================================================================
+// [ BLOK BARU UNTUK DITAMBAHKAN ]
+// 2.A. LOGIKA HANDLE DELETE (BARANG MASUK / KELUAR)
+// =================================================================
+if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['id'])) {
+    // Periksa hak akses (hanya admin/superadmin)
+    if (!isset($_SESSION['user']) || !in_array($_SESSION['user']['role'], ['admin', 'superadmin'])) {
+        $_SESSION['error_message'] = "Anda tidak memiliki hak akses untuk menghapus data.";
+        // Tentukan halaman redirect berdasarkan 'page' dari URL
+        $redirect_url = BASE_PATH . '/' . ($_GET['page'] == 'keluar' ? 'barang-keluar' : 'barang-masuk');
+        header('Location: ' . $redirect_url);
+        exit;
+    }
+
+    $id_distribusi = (int)$_GET['id'];
+    
+    // Tentukan halaman asal untuk redirect
+    $page_type = $_GET['page'] ?? 'masuk'; // 'masuk' atau 'keluar'
+    $redirect_url = BASE_PATH . '/' . ($page_type == 'masuk' ? 'barang-masuk' : 'barang-keluar');
+
+    try {
+        $pdo->beginTransaction();
+
+        // 1. Ambil data distribusi yang akan dihapus
+        $stmt_get = $pdo->prepare("SELECT id_item, jumlah, tipe FROM distributions WHERE id = ? FOR UPDATE");
+        $stmt_get->execute([$id_distribusi]);
+        $dist = $stmt_get->fetch(PDO::FETCH_ASSOC);
+
+        if ($dist) {
+            
+            // 2. Kembalikan/Sesuaikan stok
+            if ($dist['tipe'] == 'masuk') {
+                // Jika hapus data BARANG MASUK, stok barang DIKURANGI
+                
+                // Validasi: pastikan stok cukup untuk dikurangi
+                $stmt_check = $pdo->prepare("SELECT stok FROM items WHERE id = ?");
+                $stmt_check->execute([$dist['id_item']]);
+                $current_stok = $stmt_check->fetchColumn();
+
+                if ($dist['jumlah'] > $current_stok) {
+                     $pdo->rollBack();
+                    $_SESSION['error_message'] = "Gagal hapus. Stok barang tidak mencukupi untuk dikembalikan (Stok saat ini: $current_stok).";
+                    header('Location: ' . $redirect_url);
+                    exit;
+                }
+
+                $stmt_item = $pdo->prepare("UPDATE items SET stok = stok - ? WHERE id = ?");
+            } else {
+                // Jika hapus data BARANG KELUAR, stok barang DITAMBAH (dikembalikan)
+                $stmt_item = $pdo->prepare("UPDATE items SET stok = stok + ? WHERE id = ?");
+            }
+            $stmt_item->execute([$dist['jumlah'], $dist['id_item']]);
+
+            // 3. Hapus data distribusi
+            $stmt_del = $pdo->prepare("DELETE FROM distributions WHERE id = ?");
+            $stmt_del->execute([$id_distribusi]);
+
+            $pdo->commit();
+            $_SESSION['success_message'] = "Data distribusi berhasil dihapus dan stok telah disesuaikan.";
+        } else {
+            $pdo->rollBack();
+            $_SESSION['error_message'] = "Data distribusi tidak ditemukan.";
+        }
+
+    } catch (Exception $e) {
+        $pdo->rollBack();
+        $_SESSION['error_message'] = "Gagal menghapus data: " . $e->getMessage();
+    }
+
+    header('Location: ' . $redirect_url);
+    exit;
+}
+// =================================================================
+// [ BLOK BARU UNTUK DITAMBAHKAN ]
+// 2.B. LOGIKA HANDLE FORM (EDIT BARANG MASUK / KELUAR)
+// =================================================================
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit'])) {
+    // Periksa hak akses
+    if (!isset($_SESSION['user']) || !in_array($_SESSION['user']['role'], ['admin', 'superadmin'])) {
+        $_SESSION['error_message'] = "Anda tidak memiliki hak akses untuk mengedit data.";
+        $redirect_url = BASE_PATH . '/' . ($_POST['page_type'] ?? 'barang-masuk');
+        header('Location: ' . $redirect_url);
+        exit;
+    }
+
+    // Data baru dari form
+    $id_distribusi = (int)$_POST['id_distribusi'];
+    $id_item_baru = $_POST['id_item'];
+    $id_petugas_baru = $_POST['id_petugas'];
+    $tanggal_baru = $_POST['tanggal'];
+    $jumlah_baru = (int)$_POST['jumlah'];
+    $nama_pelanggan_baru = trim($_POST['nama_pelanggan'] ?? '');
+    $keterangan_baru = $_POST['keterangan'] ?? null;
+    $page_type = $_POST['page_type'] ?? 'masuk';
+    $redirect_url = BASE_PATH . '/' . ($page_type == 'masuk' ? 'barang-masuk' : 'barang-keluar');
+
+    if ($jumlah_baru <= 0) {
+        $_SESSION['error_message'] = "Jumlah barang harus lebih dari 0.";
+        header('Location: ' . $redirect_url);
+        exit;
+    }
+
+    try {
+        $pdo->beginTransaction();
+
+        // 1. Ambil data LAMA dari distribusi
+        $stmt_get = $pdo->prepare("SELECT id_item, jumlah, tipe FROM distributions WHERE id = ? FOR UPDATE");
+        $stmt_get->execute([$id_distribusi]);
+        $dist_lama = $stmt_get->fetch(PDO::FETCH_ASSOC);
+
+        if ($dist_lama) {
+            $id_item_lama = $dist_lama['id_item'];
+            $jumlah_lama = $dist_lama['jumlah'];
+            $tipe = $dist_lama['tipe']; // 'masuk' atau 'keluar'
+
+            // 2. REVERSAL (Kembalikan stok lama)
+            if ($tipe == 'masuk') {
+                // Jika ini adalah data 'masuk', kurangi stok lama
+                $stmt_rev = $pdo->prepare("UPDATE items SET stok = stok - ? WHERE id = ?");
+            } else {
+                // Jika ini adalah data 'keluar', tambahkan (kembalikan) stok lama
+                $stmt_rev = $pdo->prepare("UPDATE items SET stok = stok + ? WHERE id = ?");
+            }
+            $stmt_rev->execute([$jumlah_lama, $id_item_lama]);
+
+
+            // 3. APLIKASI (Terapkan stok baru)
+            if ($tipe == 'masuk') {
+                // Tambahkan stok baru ke item baru
+                $stmt_app = $pdo->prepare("UPDATE items SET stok = stok + ? WHERE id = ?");
+            } else {
+                // Kurangi stok baru dari item baru (Validasi dulu)
+                $stmt_check = $pdo->prepare("SELECT stok FROM items WHERE id = ? FOR UPDATE");
+                $stmt_check->execute([$id_item_baru]);
+                $current_stok_baru = $stmt_check->fetchColumn();
+
+                if ($jumlah_baru > $current_stok_baru && $id_item_lama != $id_item_baru) { 
+                    // Jika stok tidak cukup (dan kita tidak mengedit item yg sama)
+                    $pdo->rollBack();
+                    $_SESSION['error_message'] = "Gagal. Stok barang baru tidak mencukupi (Stok: $current_stok_baru).";
+                    header('Location: ' . $redirect_url);
+                    exit;
+                }
+                $stmt_app = $pdo->prepare("UPDATE items SET stok = stok - ? WHERE id = ?");
+            }
+            $stmt_app->execute([$jumlah_baru, $id_item_baru]);
+
+            // 4. Update data distribusi itu sendiri
+            $sql_update_dist = "UPDATE distributions 
+                                SET nama_pelanggan = ?, id_item = ?, id_petugas = ?, 
+                                    tanggal = ?, jumlah = ?, keterangan = ?
+                                WHERE id = ?";
+            $stmt_update_dist = $pdo->prepare($sql_update_dist);
+            $stmt_update_dist->execute([
+                $nama_pelanggan_baru, $id_item_baru, $id_petugas_baru, 
+                $tanggal_baru, $jumlah_baru, $keterangan_baru,
+                $id_distribusi
+            ]);
+
+            $pdo->commit();
+            $_SESSION['success_message'] = "Data distribusi berhasil diperbarui.";
+        } else {
+            $pdo->rollBack();
+            $_SESSION['error_message'] = "Data distribusi tidak ditemukan.";
+        }
+
+    } catch (Exception $e) {
+        $pdo->rollBack();
+        $_SESSION['error_message'] = "Gagal memperbarui data: " . $e->getMessage();
+    }
+
+    header('Location: ' . $redirect_url);
+    exit;
+}
+// [ AKHIR BLOK BARU ]
+// [ AKHIR BLOK BARU ]
+// =================================================================
 // 3. LOGIKA AMBIL DATA UNTUK TAMPILAN (VIEW) + FILTER TANGGAL
 // =================================================================
 $items = [];
