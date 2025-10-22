@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once __DIR__ . '/../config/config.php'; // Load BASE_PATH
 
 // Periksa apakah user sudah login DAN token-nya valid
