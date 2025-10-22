@@ -136,7 +136,7 @@ include __DIR__ . '/../layouts/sidebar.php';
                 datasets: [{
                     label: 'Total Stok',
                     data: pieChartData.map(item => item.total_stok_kategori),
-                    backgroundColor: ['#3B82F6', '#EF4444', '#F59E0B', '#10B981', '#6366F1'],
+                    backgroundColor: ['#F1C045', '#FFC0CB', '#D86072', '#96C7B3', '#6398A9'],
                     borderColor: '#ffffff',
                     borderWidth: 2
                 }]
@@ -155,8 +155,8 @@ include __DIR__ . '/../layouts/sidebar.php';
                 datasets: [{
                     label: 'Jumlah Stok',
                     data: barChartData.map(item => item.stok),
-                    backgroundColor: 'rgba(22, 163, 74, 0.7)',
-                    borderColor: 'rgba(22, 163, 74, 1)',
+                    backgroundColor: '#631A13',
+                    borderColor: '#FFC0CB)',
                     borderWidth: 1
                 }]
             },

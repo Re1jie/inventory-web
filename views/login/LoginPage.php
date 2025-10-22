@@ -7,14 +7,14 @@ session_start();
 <div class="min-h-screen flex items-center justify-center bg-gray-100">
   <div class="flex flex-col md:flex-row bg-white rounded-3xl shadow-2xl overflow-hidden w-11/12 md:w-4/5 lg:w-3/4">
     
-    <div class="bg-indigo-500 text-white md:w-1/2 flex flex-col justify-center items-center p-10 space-y-6">
+    <div class="bg-[#FFC0CB] text-[#631A13] md:w-1/2 flex flex-col justify-center items-center p-10 space-y-6">
       <div class="text-left w-full">
         <h1 class="text-3xl font-bold leading-snug">
           Kelola barang, <br> Lapor barang, <br> Semua jadi satu.
         </h1>
       </div>
       <div class="flex justify-center">
-        <img src="<?php echo BASE_PATH; ?>/assets/images/kardusataulogo.png" alt="Gambar Kardus atau Logo" class="w-60">
+        <img src="<?php echo BASE_PATH; ?>/assets/images/catabar.png" alt="Gambar Kardus atau Logo" class="w-120">
       </div>
       <p class="text-sm opacity-80">Mulai perjalanan efisiensi inventori Anda hari ini.</p>
     </div>
@@ -76,7 +76,7 @@ session_start();
         </div>
 
         <button id="loginBtn" type="submit" 
-        class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition font-medium shadow flex justify-center items-center gap-2">
+        class="w-full bg-[#F1C045] text-white py-2 rounded-lg hover:bg-indigo-700 transition font-medium shadow flex justify-center items-center gap-2">
   <span id="loginText">Login</span>
   <span id="loginSpinner" class="hidden">
     <i class="fa fa-spinner fa-spin"></i>
