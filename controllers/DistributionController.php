@@ -82,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah_keluar'])) {
         if ($jumlah > $current_stok) {
             $pdo->rollBack();
             $_SESSION['error_message'] = "Gagal. Stok barang tidak mencukupi (Stok saat ini: $current_stok).";
-            header('Location: ' . $_SERVER['PHP_SELF']);
+            header('Location: ' . BASE_PATH . '/barang-keluar');
             exit;
         }
 
@@ -103,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah_keluar'])) {
     }
 
     // PERBAIKAN: Redirect ke halaman yang sama
-    header('Location: ' . $_SERVER['PHP_SELF']);
+    header('Location: ' . BASE_PATH . '/barang-keluar');
     exit;
 }
 // =================================================================
