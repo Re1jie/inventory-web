@@ -7,6 +7,16 @@ if (session_status() === PHP_SESSION_NONE) {
 
 $barangModel = new Barang();
 
+// [MODIFIKASI] Fungsi helper untuk cek hak akses
+function cekAksesManajemen() {
+    if (!isset($_SESSION['user']) || !in_array($_SESSION['user']['role'], ['admin', 'superadmin'])) {
+        http_response_code(403);
+        echo "<h1>403 Forbidden</h1><p>Anda tidak memiliki hak akses untuk melakukan aksi ini.</p>";
+        exit;
+    }
+}
+
+
 // Fungsi validasi sederhana (sesuai gambar, tanpa lokasi)
 function validateBarang($data) {
     $errors = [];
@@ -74,11 +84,15 @@ function handleUpload($file) {
 
 switch ($uri) {
     case '/barang':
+        // 'petugas' BISA melihat halaman ini
         $barangs = $barangModel->getAll();
         require 'views/manajemen-barang/manajemen-barang.php'; 
         break;
 
     case '/barang/tambah':
+        // [MODIFIKASI] Cek akses
+        cekAksesManajemen();
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 // 1. Handle upload gambar
@@ -114,6 +128,9 @@ switch ($uri) {
         break;
 
     case '/barang/edit':
+        // [MODIFIKASI] Cek akses
+        cekAksesManajemen();
+
         $id = $_GET['id'] ?? null;
         if (!$id) {
             header('Location: ' . BASE_PATH . '/barang');
@@ -171,6 +188,9 @@ switch ($uri) {
         break;
 
     case '/barang/hapus':
+        // [MODIFIKASI] Cek akses
+        cekAksesManajemen();
+
         $id = $_GET['id'] ?? null;
         if ($id) {
             // Model delete() sekarang juga akan menghapus file
